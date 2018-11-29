@@ -20,4 +20,4 @@ for hit in res['hits']['hits'][0:1]:
           res = es.index(index=index_processing, doc_type='_doc', id=1, body=item)
           print(res['result'])
         except elasticsearch.ElasticsearchException as e:
-          print str(e)
+          print(str(e))
