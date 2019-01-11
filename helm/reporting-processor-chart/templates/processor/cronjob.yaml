@@ -1,0 +1,21 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ template "processor.fullname" . }}
+  
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullPolicy: Always
+          restartPolicy: Never
+          containers:
+          - name: processor
+            image: {{ .Values.processor.image }}:{{ .Values.processor.image_tag }}
+            env:
+            - name: ELASTICSEARCH_INDEX_URL_AGENT
+              value: {{ .Values.processor.elasticsearch_url }}/{{ .Values.processor.agent_index }}
+            - name: ELASTICSEARCH_INDEX_URL_PROCESSOR
+              value: {{ .Values.processor.elasticsearch_url }}/{{ .Values.processor.index }}
