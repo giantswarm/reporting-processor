@@ -1,0 +1,7 @@
+processor:
+  image: jgsqware/reporting-process #quay.io/giantswarm/reporting-processor
+  image_tag: 0.0.7 #0.0.3
+  index: processor-test1
+  agent_index: agent-test1
+  elasticsearch_url: http://reporting-tool-reporting-chart-elasticsearch.jgsqware-reporting-tool.svc:9200
+  schedule: "*/1 * * * *"

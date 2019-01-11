@@ -3,7 +3,7 @@ import json
 import elasticsearch
 
 host, index_agent = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1)
-_, index_processing = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSING'].rsplit('/', 1)
+_, index_processor = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSOR'].rsplit('/', 1)
 es = elasticsearch.Elasticsearch([host])
 
 
@@ -15,7 +15,7 @@ for doc in res['hits']['hits']:
   if 'kind' in item:
     try:
       uid = item["metadata"]["uid"]
-      res = es.index(index=index_processing, doc_type='_doc', id=item['metadata']['uid'], body=item)
+      res = es.index(index=index_processor, doc_type='_doc', id=item['metadata']['uid'], body=item)
       print(res['result'])
     except elasticsearch.ElasticsearchException as e:
       print(str(e))
