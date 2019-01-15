@@ -1,6 +1,6 @@
 processor:
-  image: jgsqware/reporting-process #quay.io/giantswarm/reporting-processor
-  image_tag: 0.0.7 #0.0.3
+  image: quay.io/giantswarm/reporting-processor
+  image_tag: latest
   index: processor-test1
   agent_index: agent-test1
   elasticsearch_url: http://elasticsearch.reporting.svc:9200
