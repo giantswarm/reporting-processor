@@ -1,7 +1,6 @@
-processor:
-  image: quay.io/giantswarm/reporting-processor
-  image_tag: latest
-  index: processor-test1
-  agent_index: agent-test1
-  elasticsearch_url: http://elasticsearch.reporting.svc:9200
-  schedule: "*/1 * * * *"
+image: quay.io/giantswarm/reporting-processor
+image_tag: latest
+index: processor-test1
+agent_index: agent-test1
+elasticsearch_url: http://elasticsearch.reporting.svc:9200
+schedule: "*/1 * * * *"

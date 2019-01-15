@@ -13,9 +13,9 @@ spec:
           restartPolicy: Never
           containers:
           - name: processor
-            image: {{ .Values.processor.image }}:{{ .Values.processor.image_tag }}
+            image: {{ .Values.image }}:{{ .Values.image_tag }}
             env:
             - name: ELASTICSEARCH_INDEX_URL_AGENT
-              value: {{ .Values.processor.elasticsearch_url }}/{{ .Values.processor.agent_index }}
+              value: {{ .Values.elasticsearch_url }}/{{ .Values.agent_index }}
             - name: ELASTICSEARCH_INDEX_URL_PROCESSOR
-              value: {{ .Values.processor.elasticsearch_url }}/{{ .Values.processor.index }}
+              value: {{ .Values.elasticsearch_url }}/{{ .Values.index }}
