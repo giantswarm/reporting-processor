@@ -1,9 +1,10 @@
-import os
-import json
+import datetime
 import elasticsearch
+import json
+import os
 
 host, index_agent = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1)
-_, index_processor = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSOR'].rsplit('/', 1)
+_, index_processor = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSOR'].rsplit('/', 1) + datetime.date.today().strftime("%Y-%m-%d")
 es = elasticsearch.Elasticsearch([host])
 
 page = es.search(

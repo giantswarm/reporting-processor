@@ -4,12 +4,12 @@ metadata:
   name: {{ template "processor.fullname" . }}
   
 spec:
-  schedule: "*/1 * * * *"
+  schedule: "{{ .Values.schedule }}"
   jobTemplate:
     spec:
       template:
         spec:
-          concurrencyPolicy: Replace
+          concurrencyPolicy: Forbid
           imagePullPolicy: Always
           restartPolicy: Never
           failedJobsHistoryLimit: 3
