@@ -6,7 +6,6 @@ host, index_agent = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1)
 _, index_processor = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSOR'].rsplit('/', 1)
 es = elasticsearch.Elasticsearch([host])
 
-
 page = es.search(
   index = index_agent,
   size = 100,
@@ -28,6 +27,11 @@ while (scroll_size > 0):
 
     # Add controller name and type in the item root level
     if 'metadata' in item:
+
+      if 'labels' in item['metadata']:
+        if 'giantswarm.io/service-type' in item['metadata']:
+          continue #Dont track our pods
+
       if 'ownerReferences' in item['metadata']:
         if len(item['metadata']['ownerReferences']) > 0:
           if 'kind' in item['metadata']['ownerReferences'][0]:

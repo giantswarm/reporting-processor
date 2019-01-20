@@ -9,8 +9,11 @@ spec:
     spec:
       template:
         spec:
+          concurrencyPolicy: Replace
           imagePullPolicy: Always
           restartPolicy: Never
+          failedJobsHistoryLimit: 3
+          successfulJobsHistoryLimit: 1
           containers:
           - name: processor
             image: {{ .Values.image }}:{{ .Values.image_tag }}
