@@ -22,3 +22,5 @@ spec:
               value: {{ .Values.elasticsearch_url }}/{{ .Values.agent_index }}
             - name: ELASTICSEARCH_INDEX_URL_PROCESSOR
               value: {{ .Values.elasticsearch_url }}/{{ .Values.index }}
+            - name: DAYS_HISTORY
+              value: {{ .Values.days_history }}

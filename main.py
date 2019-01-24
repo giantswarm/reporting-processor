@@ -3,9 +3,25 @@ import elasticsearch
 import json
 import os
 
-host, index_agent = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1)
-_, index_processor = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSOR'].rsplit('/', 1) + datetime.date.today().strftime("%Y-%m-%d")
+today = datetime.datetime.today()
+host, index_agent = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1) 
+index_agent += today.strftime("%Y-%m-%d")
+_, index_processor = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSOR'].rsplit('/', 1)
 es = elasticsearch.Elasticsearch([host])
+
+# delete old agent index
+delta = datetime.timedelta(days=int(os.environ['DAYS_HISTORY']))
+end_date = today - delta
+d = end_date - delta
+while d <= end_date:
+  print("removing old data: " + d.strftime("%Y-%m-%d"))
+  d += delta
+  es.indices.delete(index=index_agent + d.strftime("%Y-%m-%d"), ignore=[400, 404])
+
+
+if not es.indices.exists(index="index"):
+  print("Index %s not found, skipping the processing" % index_agent)
+  quit()
 
 page = es.search(
   index = index_agent,
