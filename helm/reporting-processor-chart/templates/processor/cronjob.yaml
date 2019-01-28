@@ -4,13 +4,16 @@ metadata:
   name: {{ template "processor.fullname" . }}
   
 spec:
-  schedule: "*/1 * * * *"
+  schedule: "{{ .Values.schedule }}"
   jobTemplate:
     spec:
       template:
         spec:
+          concurrencyPolicy: Forbid
           imagePullPolicy: Always
           restartPolicy: Never
+          failedJobsHistoryLimit: 3
+          successfulJobsHistoryLimit: 1
           containers:
           - name: processor
             image: {{ .Values.image }}:{{ .Values.image_tag }}
@@ -19,3 +22,5 @@ spec:
               value: {{ .Values.elasticsearch_url }}/{{ .Values.agent_index }}
             - name: ELASTICSEARCH_INDEX_URL_PROCESSOR
               value: {{ .Values.elasticsearch_url }}/{{ .Values.index }}
+            - name: DAYS_HISTORY
+              value: {{ .Values.days_history }}

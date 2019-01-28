@@ -1,6 +1,7 @@
 image: quay.io/giantswarm/reporting-processor
 image_tag: latest
-index: processor-test1
-agent_index: agent-test1
+index: gs-processor
+agent_index: gs-agent-test-*
 elasticsearch_url: http://elasticsearch.reporting.svc:9200
-schedule: "*/1 * * * *"
+schedule: "0 */8 * * *"
+days_history: 7

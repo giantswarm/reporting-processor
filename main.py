@@ -1,11 +1,27 @@
-import os
-import json
+import datetime
 import elasticsearch
+import json
+import os
 
-host, index_agent = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1)
+today = datetime.datetime.today()
+host, index_agent = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1) 
+index_agent += today.strftime("%Y-%m-%d")
 _, index_processor = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSOR'].rsplit('/', 1)
 es = elasticsearch.Elasticsearch([host])
 
+# delete old agent index
+delta = datetime.timedelta(days=int(os.environ['DAYS_HISTORY']))
+end_date = today - delta
+d = end_date - delta
+while d <= end_date:
+  print("removing old data: " + d.strftime("%Y-%m-%d"))
+  d += delta
+  es.indices.delete(index=index_agent + d.strftime("%Y-%m-%d"), ignore=[400, 404])
+
+
+if not es.indices.exists(index="index"):
+  print("Index %s not found, skipping the processing" % index_agent)
+  quit()
 
 page = es.search(
   index = index_agent,
@@ -28,6 +44,11 @@ while (scroll_size > 0):
 
     # Add controller name and type in the item root level
     if 'metadata' in item:
+
+      if 'labels' in item['metadata']:
+        if 'giantswarm.io/service-type' in item['metadata']:
+          continue #Dont track our pods
+
       if 'ownerReferences' in item['metadata']:
         if len(item['metadata']['ownerReferences']) > 0:
           if 'kind' in item['metadata']['ownerReferences'][0]:
