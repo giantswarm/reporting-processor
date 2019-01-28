@@ -19,7 +19,7 @@ while d <= end_date:
   es.indices.delete(index=index_agent + d.strftime("%Y-%m-%d"), ignore=[400, 404])
 
 
-if not es.indices.exists(index="index"):
+if not es.indices.exists(index=index_processor):
   print("Index %s not found, skipping the processing" % index_agent)
   quit()
 
