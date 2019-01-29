@@ -4,41 +4,15 @@ import json
 import os
 
 today = datetime.datetime.today()
-host, index_agent = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1) 
-index_agent += today.strftime("%Y-%m-%d")
+host, index_agent_raw = os.environ['ELASTICSEARCH_INDEX_URL_AGENT'].rsplit('/', 1) 
 _, index_processor = os.environ['ELASTICSEARCH_INDEX_URL_PROCESSOR'].rsplit('/', 1)
 es = elasticsearch.Elasticsearch([host])
 
-# delete old agent index
-delta = datetime.timedelta(days=int(os.environ['DAYS_HISTORY']))
-end_date = today - delta
-d = end_date - delta
-while d <= end_date:
-  print("removing old data: " + d.strftime("%Y-%m-%d"))
-  d += delta
-  es.indices.delete(index=index_agent + d.strftime("%Y-%m-%d"), ignore=[400, 404])
+def delete_index(name):
+  es.indices.delete(index=name, ignore=[400, 404])
+  print("Index %s removed" % name)
 
-
-if not es.indices.exists(index=index_processor):
-  print("Index %s not found, skipping the processing" % index_agent)
-  quit()
-
-page = es.search(
-  index = index_agent,
-  size = 100,
-  scroll = '2m',
-  body = {'query': {'match_all': {}}})
-
-print("Got %d Hits:" % page['hits']['total'])
-
-sid = page['_scroll_id']
-scroll_size = page['hits']['total']
-
-while (scroll_size > 0):
-  page = es.scroll(scroll_id = sid, scroll = '2m')
-  sid = page['_scroll_id']
-  scroll_size = len(page['hits']['hits'])
-
+def process_batch(page):
   for doc in page['hits']['hits']:
     item = doc["_source"]
 
@@ -59,6 +33,43 @@ while (scroll_size > 0):
     if 'kind' in item:
       try:
         uid = item["metadata"]["uid"]
-        res = es.index(index=index_processor, doc_type='_doc', id=uid, body=item)
+        es.index(index=index_processor, doc_type='_doc', id=uid, body=item)
       except elasticsearch.ElasticsearchException as e:
         print(str(e))
+
+# delete old agent index
+d = today - datetime.timedelta(days=15)
+while d <= today:
+  d += datetime.timedelta(days=1)
+  index_agent = index_agent_raw + d.strftime("-%Y-%m-%d")
+  if not es.indices.exists(index=index_agent):
+    print("Index %s not found, skipping" % index_agent)
+    continue
+
+  page = es.search(
+    index = index_agent,
+    size = 100,
+    scroll = '2m',
+    body = {'query': {'match_all': {}}})
+
+  print("Got %d Hits:" % page['hits']['total'])
+
+  if page['hits']['total'] <= 0:
+    print("Index %s empty, skipping" % index_agent)
+    delete_index(index_agent)
+    continue
+
+  sid = page['_scroll_id']
+  scroll_size = page['hits']['total']
+
+  while (scroll_size > 0):
+    print("Index %s: %d items remaining to be processed" % (index_agent, scroll_size))
+    process_batch(page)
+
+    page = es.scroll(scroll_id = sid, scroll = '2m')
+    sid = page['_scroll_id']
+    scroll_size = len(page['hits']['hits'])
+
+  print("Index %s processed" % index_agent)
+  delete_index(index_agent)
+  

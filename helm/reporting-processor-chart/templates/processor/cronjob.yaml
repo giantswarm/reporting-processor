@@ -16,11 +16,9 @@ spec:
           successfulJobsHistoryLimit: 1
           containers:
           - name: processor
-            image: {{ .Values.image }}:{{ .Values.image_tag }}
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
             env:
             - name: ELASTICSEARCH_INDEX_URL_AGENT
               value: {{ .Values.elasticsearch_url }}/{{ .Values.agent_index }}
             - name: ELASTICSEARCH_INDEX_URL_PROCESSOR
               value: {{ .Values.elasticsearch_url }}/{{ .Values.index }}
-            - name: DAYS_HISTORY
-              value: {{ .Values.days_history }}
