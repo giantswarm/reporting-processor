@@ -10,10 +10,10 @@ jobs:
         command: .circleci/install.sh
     - run:
         name: set env tag
-        command: echo "export TAG=$(cat helm/reporting-processor-chart/Chart.yaml | grep version | awk '{ print $2 }')" >> $BASH_ENV
+        command: echo "export TAG=$(cat helm/reporting-processor/Chart.yaml | grep version | awk '{ print $2 }')" >> $BASH_ENV
     - run:
         name: helm lint
-        command: helm lint ./helm/reporting-processor-chart
+        command: helm lint ./helm/reporting-processor
     - run:
         name: docker login
         command: docker login quay.io -u $QUAY_USERNAME -p $QUAY_PASSWORD
