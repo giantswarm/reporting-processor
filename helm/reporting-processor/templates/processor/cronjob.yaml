@@ -17,7 +17,7 @@ spec:
           restartPolicy: Never
           containers:
           - name: processor
-            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            image: quay.io/giantswarm/reporting-processor:{{ .Chart.Version }}
             env:
             - name: ELASTICSEARCH_INDEX_URL_AGENT
               value: {{ .Values.elasticsearch_url }}/{{ .Values.agent_index }}
