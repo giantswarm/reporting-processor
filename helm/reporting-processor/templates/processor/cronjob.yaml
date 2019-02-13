@@ -5,15 +5,16 @@ metadata:
   
 spec:
   schedule: "{{ .Values.schedule }}"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 600
+      backoffLimit: 3
       template:
         spec:
-          concurrencyPolicy: Forbid
-          imagePullPolicy: Always
           restartPolicy: Never
-          failedJobsHistoryLimit: 3
-          successfulJobsHistoryLimit: 1
           containers:
           - name: processor
             image: quay.io/giantswarm/reporting-processor:{{ .Chart.Version }}
