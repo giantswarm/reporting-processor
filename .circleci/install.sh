@@ -21,3 +21,8 @@ tar -xvf helm-${HELM_LATEST_VERSION}-linux-amd64.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin
 rm -f helm-${HELM_LATEST_VERSION}-linux-amd64.tar.gz
 rm -rf linux-amd64 
+
+# Install Helm registry
+wget https://github.com/app-registry/helm-plugin/releases/download/v0.3.7/registry-helm-plugin-v0.3.7-dev-linux-x64.tar.gz
+mkdir -p ~/.helm/plugins/
+tar xzvf registry-helm-plugin-v0.3.7-dev-linux-x64.tar.gz -C ~/.helm/plugins/
