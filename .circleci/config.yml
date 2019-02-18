@@ -10,19 +10,54 @@ jobs:
         command: .circleci/install.sh
     - run:
         name: set env tag
-        command: echo "export TAG=$(cat helm/reporting-processor/Chart.yaml | grep version | awk '{ print $2 }')" >> $BASH_ENV
+        command: echo "export TAG=$(cat helm/reporting-processor-chart/Chart.yaml | grep version | awk '{ print $2 }')" >> $BASH_ENV
     - run:
         name: helm lint
-        command: helm lint ./helm/reporting-processor
+        command: helm lint ./helm/reporting-processor-chart
+    - run:
+        name: docker build
+        command: docker build -t quay.io/giantswarm/reporting-processor:${TAG} .
+
+  deploy:
+    machine: true
+    steps:
+    - checkout
+
+    - run:
+        name: install helm
+        command: .circleci/install.sh
+    - run:
+        name: set env tag
+        command: echo "export TAG=$(cat helm/reporting-processor-chart/Chart.yaml | grep version | awk '{ print $2 }')" >> $BASH_ENV
+    - run:
+        name: helm lint
+        command: helm lint ./helm/reporting-processor-chart
     - run:
         name: docker login
         command: docker login quay.io -u $QUAY_USERNAME -p $QUAY_PASSWORD
     - run:
         name: docker build
         command: docker build -t quay.io/giantswarm/reporting-processor:${TAG} .
-
-    - deploy:
+    - run:
+        name: Push to registry
         command: |
-          if [ "${CIRCLE_BRANCH}" == "master" ]; then
-            docker push quay.io/giantswarm/reporting-processor:${TAG}
-          fi
+          docker push quay.io/giantswarm/reporting-processor:${TAG}
+    - run:
+        name: helm registry login
+        command: helm registry login quay.io -u $QUAY_USERNAME -p $QUAY_PASSWORD
+    - run:
+        name: Push to registry
+        command: cd helm/reporting-processor-chart && helm registry push quay.io --namespace giantswarm  --channel stable 
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: master
+      - deploy:
+          filters:
+            branches:
+              only: master
